@@ -5,6 +5,7 @@ import {
   notificationSetting,
   notificationRemoving,
 } from '../reducers/notificationReducer'
+import anecdoteService from '../services/anecdote'
 
 const Anecdote = ({ anecdote, handleClick }) => (
   <li>
@@ -25,6 +26,14 @@ const AnecdoteList = () => {
   })
   anecdotes.sort((a, b) => b.votes - a.votes)
   const dispatch = useDispatch()
+  const addVote = async (data) => {
+    const changedAnecdote = await anecdoteService.addVote(data)
+    dispatch(voteOf(changedAnecdote))
+    dispatch(notificationSetting(`you vote ${data.content}`))
+    setTimeout(() => {
+      dispatch(notificationRemoving())
+    }, 5000)
+  }
 
   return (
     <ul>
@@ -32,15 +41,7 @@ const AnecdoteList = () => {
         <Anecdote
           key={anecdote.id}
           anecdote={anecdote}
-          handleClick={() => {
-            dispatch(voteOf(anecdote.id))
-            dispatch(
-              notificationSetting(`you vote ${anecdote.content}`)
-            )
-            setTimeout(() => {
-              dispatch(notificationRemoving())
-            }, 5000)
-          }}
+          handleClick={() => addVote(anecdote)}
         />
       ))}
     </ul>
